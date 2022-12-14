@@ -125,7 +125,7 @@ def humanreadable(key, term, dict):
             #elif dict.codes[key] != '':
                 #term = dict
         # replace u00 chars
-        p = re.compile(ur'\\u\d\d')
+        p = re.compile(r'\\u\d\d')
         m = re.search(p, term)
         if m:
             term = term.decode('unicode_escape')

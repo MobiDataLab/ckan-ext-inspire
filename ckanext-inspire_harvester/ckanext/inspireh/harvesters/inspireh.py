@@ -1,6 +1,6 @@
 import re
-import urllib
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.parse
 
 import logging
 
@@ -54,11 +54,11 @@ class InspireHarvester(CSWHarvester, SingletonPlugin):
 
             existing_keys = [entry.get('key') for entry in package_dict['extras']]
 
-            for key, value in default_extras.iteritems():
+            for key, value in default_extras.items():
                 # log.debug('Processing extra %s', key)
                 if not key in existing_keys or override_extras:
                     # Look for replacement strings
-                    if isinstance(value, basestring):
+                    if isinstance(value, str):
                         value = value.format(
                             harvest_source_id=str(harvest_object.job.source.id),
                             harvest_source_url=str(harvest_object.job.source.url).strip('/'),
@@ -87,7 +87,7 @@ class InspireHarvester(CSWHarvester, SingletonPlugin):
 
         exec(inspire_string)
 
-        for key, value in rec.iteritems():
+        for key, value in rec.items():
             value = value.lstrip()
             value = value.rstrip()
             package_dict['extras'].append({'key': key, 'value': value.decode('utf-8')})
