@@ -71,7 +71,8 @@ class InspireHarvester(CSWHarvester, SingletonPlugin):
                     log.debug('Skipping existing extra %s', key)
 
         # parse and work with XML
-        inspire_xml = '<?xml version="1.0" encoding="UTF-8"?>' + harvest_object.content.encode('utf-8')
+        inspire_raw_xml = '<?xml version="1.0" encoding="UTF-8"?>' + harvest_object.content
+        inspire_xml = inspire_raw_xml.encode('utf-8')
         inspire_dom = etree.fromstring(inspire_xml)
         inspire_template = etree.parse(xsl_temp)
         inspire_transform = etree.XSLT(inspire_template)
@@ -85,12 +86,18 @@ class InspireHarvester(CSWHarvester, SingletonPlugin):
         inspire_string = inspire_string.lstrip()
         inspire_string = inspire_string.rstrip()
 
-        exec(inspire_string)
+        try:
+            exec(inspire_string)
+        except Exception as e:
+            log.debug('Exec error =  %s', e)
 
         for key, value in rec.items():
             value = value.lstrip()
             value = value.rstrip()
-            package_dict['extras'].append({'key': key, 'value': value.decode('utf-8')})
+            if not key in [entry.get('key') for entry in package_dict['extras']]:
+                package_dict['extras'].append({'key': key, 'value': value})
+            else:
+                log.debug('Ignoring duplicate key = %s', key)
 
         # Add harvester info
         package_dict['extras'].append({'key': 'inspire_harvester', 'value': 'true'})
